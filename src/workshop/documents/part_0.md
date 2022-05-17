@@ -93,6 +93,20 @@ In this step you will clone the above forked repository into a development envir
 
 ![](./images/run_mlopsworkshop_azcli004.png)
 
+> IMPORTANT: setup Git credentials helper (to avoid typing your username / password every time you push some changes)
+
+```bash
+git config --global credential.helper store
+```
+
+> IMPORTANT: Git push commands setup (replace with the email linked to your github account + specify your full name)
+
+```bash
+git config --global user.email "my_email@my_company.com"
+git config --global user.name "Firstname Lastname"
+git config --global push.default simple
+```
+
 - A5. Generate and register data for the workshop
 
     - Update arguments "_NAMES_ and _ID_" accordingly and then run following commands from the Terminal
@@ -252,6 +266,20 @@ In this step you will clone the above forked repository into a development envir
     git clone https://github.com/{YOURGITHUBACCOUNT}/MLOpsTemplate.git
     ```
 
+> IMPORTANT: if this is the first time using Git on your laptop, setup Git credentials helper (to avoid typing your username / password every time you push some changes)
+
+```bash
+git config --global credential.helper store
+```
+
+> IMPORTANT: if this is your first time using Git on your laptop, go through this Git push commands setup (replace with the email linked to your github account + specify your full name)
+
+```bash
+git config --global user.email "my_email@my_company.com"
+git config --global user.name "Firstname Lastname"
+git config --global push.default simple
+```
+
     - Using conda, create a new virtual environment or use an existing virtual environment with azureml-sdk, pandas, sckit-learn
 
         - If you don't have an existing conda virtual environment, use following command to create new
@@ -358,6 +386,20 @@ In this step you will clone the above forked repository into a development envir
     cd ./MLOpsTemplate/src/workshop
     ```
 
+> IMPORTANT: setup Git credentials helper (to avoid typing your username / password every time you push some changes)
+
+```bash
+git config --global credential.helper store
+```
+
+> IMPORTANT: Git push commands setup (replace with the email linked to your github account + specify your full name)
+
+```bash
+git config --global user.email "my_email@my_company.com"
+git config --global user.name "Firstname Lastname"
+git config --global push.default simple
+```
+
     - Upgrade pip to this specific version:
 
     ``` bash
@@ -450,9 +492,9 @@ You are going to create PAT to allow your code access your personal git repo
 
     ![](./images/github4001.png)
 
-- Type `USER_NAME_GITHUB_SECRET` for the name of the secret, and paste the token you copied from PAT section
+- Type `PERSONAL_ACCESS_TOKEN_GITHUB` for the name of the secret, and paste the token you copied from PAT section
 
-    > Important: The name for this secret must be `USER_NAME_GITHUB_SECRET`
+    > Important: The name for this secret must be `PERSONAL_ACCESS_TOKEN_GITHUB`
 
     ![](./images/github4008.png)
 
@@ -496,9 +538,9 @@ You have saved in step A9, B9 or C7 the output of the SP creation command, it sh
 
     ![](./images/github4001.png)
 
-- Type `AZURE_CREDENTIALS_USERNAME` for the name of the secret, and paste your SP json definition:
+- Type `AZURE_SERVICE_PRINCIPAL` for the name of the secret, and paste your SP json definition:
 
-    > Important: The name for this secret must be `AZURE_CREDENTIALS_USERNAME`
+    > Important: The name for this secret must be `AZURE_SERVICE_PRINCIPAL`
 
     ![](./images/github4002.png)
 
