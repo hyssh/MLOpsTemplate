@@ -31,7 +31,7 @@ jobs:
       - name: Install AZ ML and tools
         run: | # SETUP line 33 to point to your own AML workspace
           az extension add -n ml -y --version 2.2.1
-          az configure --defaults group=mtcs-dev-aml-rg workspace=mtcs-dev-aml-rg location=westus2
+          az configure --defaults group=mtcs-dev-aml-rg workspace=mtcs-dev-aml location=westus2
       - name: Run Feature Engineering
         uses: ./.github/actions/aml-job-create
         with:
