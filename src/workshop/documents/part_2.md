@@ -1,82 +1,106 @@
 
-# Part 2: Use cloud scale compute and monitor experiment with Azure ML
-
-## Goal 
-After successfully restructuring the jupyter notebook and run modules locally, your team wants to leverage Azure cloud to run the experiment at scale.
-They also want to take advantage of experiment tracking and model management capabilities in Azure ML to keep track of experiment.   
+# Part 2: Use cloud scale compute to run, deploy and manage ML experiment with Azure ML
 
 ## Pre-requisites
-- Complete part 0 and 1
+- Complete [Part 0](part_0.md), [Part 1](part_1.md)
+- Run each module feature_engineering, ml_training and evaluating successfully in local mode
+- Have Azure ML workspace setup with a Compute Cluster named ```cpu-cluster```
 
-## Tasks
-- Review the templates under ```data_engineering```, ```training``` and   ```evaluating``` folders
-- Run individual modules with azure ml using the CLI v2. 
-    - Run ```feature_engineering.py``` module under ```my_data_engineering``` folder
-        - Add following parameters to the yml job file
-            - ```input_folder```: path to the folder in datastore location, e.g. ```azureml://datastores/{NAME_OF_YOUR_DATASTORE}/paths/mlops_workshop_data```
-        - Leave default values for  ```prep_data``` which is ```data```, ```public_holiday_file_name``` which is ```holidays.parquet```,  ```weather_file_name``` which is ```weather.parquet```, ```nyc_file_name```which is ```green_taxi.parquet``` at ``feature_engineering.py``
-        - Create environment file ```conda_feature_engineering.yml``` by copying the same file from ```core/data_engineering/``` folder 
-        - Check and run reference solution at ```core/data_engineering/feature_engineering.yml```
-            - Go to src/workshop ```cd src/workshop```
-            - Change the names of compute cluster in the yml file to (default is ```DS11```) and the data store (default is ```mltraining```)
-            - Run ```az ml job create -f core/data_engineering/feature_engineering.yml --resource-group YOUR_RESOURCE_GROUP --workspace-name YOUR_WORKSPACE_NAME``
+## Summary 
+After successfully restructuring the jupyter notebook and run modules locally, your team wants to leverage Azure cloud to run the experiment at scale.
+They also want to take advantage of experiment tracking and model management capabilities in Azure ML to keep track of experiment. 
+Finally, the team wants to deploy the model as a rest endpoint for real time inferencing and experience the option of deploying it as batch inferencing.
+To accomplish these goals, you will perform the following:
+- Run feature_engineering module as a job in Azure AML 
+- Run ml_training module as a job in Azure ML and observe the experiment metrics 
+- Run evaluating module as a job in Azure ML and observe how the model can be registered to Azure ML model's repo
+- Run the three modules together as a pipeline
+- Deploy and test the produced ML model as an API using Azure Managed Online Endpoint
 
-    - run ```ml_training.py``` module under ```my_training`` folder
-        - Add following parameters to the yml job file
-            - ```input_folder```: path to the folder in datastore location, e.g. ```azureml://datastores/{NAME_OF_YOUR_DATASTORE}/paths/mlops_workshop_data```
-        - Leave default values for other parameters at ```ml_training.py```
-        - Create environment file ```conda_ml_training.yml``` by copying the same file from ```core/training/``` folder 
-        - Check and run reference solution at ```core/training/ml_training.yml```
-            - Go to src/workshop ```cd src/workshop```
-            - Change the names of compute cluster in the yml file to (default is ```DS11```) and the data store (default is ```mltraining```)
-            - Run ```az ml job create -f core/training/ml_training.yml --resource-group YOUR_RESOURCE_GROUP --workspace-name YOUR_WORKSPACE_NAME``
-    - run ```ml_evaluating.py``` module under ```my_evaluating`` folder
-        - Accept following parameters to yml job file
-            - ```prep_data```: ```folder: azureml://datastores/{NAME_OF_YOUR_DATASTORE}/paths/mlops_workshop_data```
-            - model_folder:: ```folder: azureml://datastores/{NAME_OF_YOUR_DATASTORE}/paths/mlops_workshop_data```
-            - run_mode: ```"remote"```
-        - Leave default values for other parameters at python file
-        - Create environment file ```conda_ml_evaluating.yml``` by copying the same file from ```core/evaluating/``` folder 
-        - Check and run reference solution at ```core/evaluating/ml_evaluating.yml```
-            - Go to src/workshop ```cd src/workshop```
-            - Change the names of compute cluster in the yml file to (default is ```DS11```) and the data store (default is ```mltraining```)
-            - Run ```az ml job create -f core/evaluating/ml_evaluating.yml --resource-group YOUR_RESOURCE_GROUP --workspace-name YOUR_WORKSPACE_NAME``
-- Capture metrics and log model using mlflow 
-- Create a pipeline that run feature_engineering, training and evaluation together
-    - Create a folder for pipelines ```my_pipelines``` 
-    - Review the ```training_pipeline.yml``` under ```pipelines`` and create your own pipeline in ```my_pipelines``` 
-    - Run the pipeline  
-    - Check and run reference solution at ```core/pipelines/training_pipeline.yml```
-        - Go to src/workshop ```cd src/workshop```
-        - Change the names of compute cluster in the yml file to (default is ```DS11```) and the data store (default is ```mltraining```)
-        - Run ```az ml job create -f pipelines/training_pipeline.yml --resource-group YOUR_RESOURCE_GROUP --workspace-name YOUR_WORKSPACE_NAME``
-- Deploy to Azure ML Managed Online Endpoint
-    - Review the template in ```scoring``` folder
-    - Prepare ```conda.yml``` environment file, ```endpoint.yml``` file and ```deplyment.yml``` file
-    - Use CLI to create your endpoint and create a blue deployment 
-    - Create a score_test script to call the deployed service with mock-up data
-    - Run reference solution
-        - Go to src/workshop ```cd src/workshop```
-        - Change the names of compute cluster in the yml file to (default is ```DS11```) and the data store (default is ```mltraining```)
-        - Run ```az ml online-endpoint create --file scoring/endpoint.yml --resource-group YOUR_RESOURCE_GROUP --workspace-name YOUR_WORKSPACE```
-        - Run ```az ml online-deployment create --file scoring/deployment.yaml --resource-group YOUR_RESOURCE_GROUP --workspace-name YOUR_WORKSPACE```
+
+## Steps
+1. Go to the workshop folder.
+   > Action Item: Run the following code snippet.
+    ```bash 
+    cd src/workshop
+    ```
+2. Set defaults values to configure your resource group and workspace.
+   > Action Item: Run the following code snippet.
+    ```bash 
+    az configure --defaults group=YOUR_RESOURCE_GROUP workspace=YOUR_WORKSPACE
+    ```
+
+3. Run the ```feature_engineering.py``` module under the ```data_engineering``` folder by following the steps below:
+   > Action Items:
+   > - In the ```feature_engineering.yml``` file, change ```SOME_COMPUTE_CLUSTER``` to reference your own Azure Machine Learning Compute Cluster (not instance).
+   > - Run the following code snippet:
+      ```bash 
+        az ml job create -f core/data_engineering/feature_engineering.yml 
+      ```
+   > - Go to Azure ML Studio and locate the run detail for this experiment.
+
+4. Run the ```ml_training.py``` module under the ```training``` folder by following the steps below:
+   > Action Items:
+   > - In the ```ml_training.yml``` file, change ```SOME_COMPUTE_CLUSTER``` to reference your own Azure Machine Learning Compute Cluster (not instance).
+   > - Run the following code snippet:
+      ```bash 
+        az ml job create -f core/training/ml_training.yml 
+      ```
+   > - Go to Azure ML Studio and locate the run detail for this experiment.
+
+5. Run the ```ml_evaluating.py``` module under the ```evaluating``` folder by following the steps below:
+   > Action Items: 
+   > - In the ```ml_evaluating.yml``` file, change ```SOME_COMPUTE_CLUSTER``` to reference your own Azure Machine Learning Compute Cluster (not instance).
+   > - Run the following code snippet:
+
+      ```bash 
+        az ml job create -f core/evaluating/ml_evaluating.yml 
+      ```
+   > - Go to Azure ML Studio and locate the run detail for this experiment. Observe the ML metrics and how the model was logged to Azure ML's model registry.
+
+6. Create a pipeline that runs the feature_engineering, training and evaluation in one workflow.
+   > Action Items: Run the pipeline, by running the following code snippet.
+   > - In the ```training_pipeline.yml``` under the ```pipelines``` folder, change ```SOME_COMPUTE_CLUSTER``` to reference your own Azure Machine Learning Compute cluster (not instance).
+   
+      ```bash 
+        az ml job create -f core/pipelines/training_pipeline.yml 
+      ```
+   > - Go to the run detail at Azure ML studio and observe the relationship graph among the modules. (See chart below as well.)
+
+7. Discuss this question: Why should we run the modules both individually and together in a pipeline? 
+
+8. Deploy to Azure ML Managed Online Endpoint by following the steps below:
+   > Action Items:
+   > - Update the ```endpoint.yml``` file and ```deployment.yml``` by updating the name of the endpoint (should be a unique name)
+   > - Create your endpoint
+      ```bash 
+        az ml online-endpoint create --file core/scoring/endpoint.yml 
+      ```
+   > - Create a green deployment 
+      ```bash 
+        az ml online-deployment create --file core/scoring/deployment.yml 
+      ```
+   > - Test the deployed service with mock-up data from scoring_test_request.json
+      ```bash 
+        az ml online-endpoint invoke -n YOUR_ENDPOINT_NAME --deployment green --request-file core/scoring/scoring_test_request.json 
+      ``` 
+   > - Observe the returned scores from the endpoint evaluation.
 
 ### The entire training pipeline is illustrated with this diagram
-
 ![training_pipeline](images/training_pipeline.png)
+
 ## Success criteria
-- Run the module individually in Azure 
+- Run the modules individually in Azure 
 - Capture metrics and models in ml_training and ml_evaluating modules
 - Run three modules together in a pipeline
-- Model is deployed successfully to managed endpoint. Testing is successful
-
+- Model is deployed successfully to managed endpoint. 
+- Testing is successful
 
 ## Reference materials
-- Azure ML CLI single job examples: https://github.com/Azure/azureml-examples/tree/main/cli/jobs/single-step
-- Azure ML CLI pipeline examples: https://github.com/Azure/azureml-examples/tree/main/cli/jobs/pipelines
-- Deploy to managed online endpoint: https://docs.microsoft.com/en-us/azure/machine-learning/how-to-deploy-managed-online-endpoints
+- [Azure ML CLI v2 tutorial](https://docs.microsoft.com/en-us/learn/paths/train-models-azure-machine-learning-cli-v2/)
+- [Azure ML CLI single job examples](https://github.com/Azure/azureml-examples/tree/main/cli/jobs/single-step)
+- [Azure ML CLI pipeline examples](https://github.com/Azure/azureml-examples/tree/main/cli/jobs/pipelines)
+- [Deploy to managed online endpoint](https://docs.microsoft.com/en-us/azure/machine-learning/how-to-deploy-managed-online-endpoints)
+- [Deploy to batch endpoint](https://docs.microsoft.com/en-us/azure/machine-learning/how-to-use-batch-endpoint)
 
-
----
-
-## [To Next Part 3](https://github.com/microsoft/MLOpsTemplate/blob/hyun-dev/src/workshop/documents/part_3.md)
+## [Go to Part 3](part_3.md)
