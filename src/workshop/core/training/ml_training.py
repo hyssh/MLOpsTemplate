@@ -43,7 +43,7 @@ def createClassModel(algo_name, catg, nums):
         #---------------------------------------------
         #setup: Update alpha value
         #---------------------------------------------
-        model = Ridge(alpha=10)  #setup
+        model = Ridge(alpha=1)  #setup
     elif algo_name == 'random_forest':
         model = RandomForestRegressor()
     else:
